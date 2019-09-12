@@ -52,7 +52,7 @@ FFTW_LIBS = -lfftw3_threads -lfftw3
 OPENMMDIR = /usr/local/openmm
 OPENMM_LIB_DIR = -L$(OPENMMDIR)/lib
 OPENMM_INCLUDE_DIR = $(OPENMMDIR)/include
-OPENMM_LIBS = -lOpenMM -lOpenMMAmoeba
+OPENMM_LIBS = -lOpenMM -lOpenMMAmoeba -lOpenMMPlumed
 
 CUDA_DIR = /usr/local/cuda
 CUDA_LIB = $(CUDA_DIR)/lib
