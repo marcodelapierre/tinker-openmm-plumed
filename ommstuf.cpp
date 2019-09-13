@@ -4032,7 +4032,7 @@ void openmm_init_ (void** ommHandle, double* dt) {
       setupAmoebaWcaDispersionForce (omm->system, log);
    }
 
-   if (openmm__.plumedInputFile != "-1") {
+   if ( strcmp(openmm__.plumedInputFile,"-1") != 0 ) {
       setupPlumedForce (omm->system, log);
    }
 
