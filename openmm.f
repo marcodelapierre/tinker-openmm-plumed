@@ -13,10 +13,11 @@ c     ##                                                           ##
 c     ###############################################################
 c
 c
-c     ommHandle      opaque handle pointing to OpenMM data structure
-c     cudaPrecision  string with CUDA precision (SINGLE, MIXED, DOUBLE)
-c     ommPlatform    string with OpenMM platform type (REFERENCE, CUDA)
-c     cudaDevice     string with names/numbers of the CUDA GPU cards
+c     ommHandle        opaque handle pointing to OpenMM data structure
+c     cudaPrecision    string with CUDA precision (SINGLE, MIXED, DOUBLE)
+c     ommPlatform      string with OpenMM platform type (REFERENCE, CUDA)
+c     cudaDevice       string with names/numbers of the CUDA GPU cards
+c     plumedInputFile  string with input file name for PLUMED plugin
 c
 c
       module openmm
@@ -25,5 +26,6 @@ c
       character*6 cudaPrecision
       character*9 ommPlatform
       character*16 cudaDevice
+      character*240 plumedInputFile
       save
       end

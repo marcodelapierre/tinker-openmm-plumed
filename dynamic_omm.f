@@ -266,12 +266,38 @@ c
          write (iout,350)
   350    format (/,' Return Data from the GPU at Every Time Step',
      &              ' [N] :  ',$)
-         read (input,360)  record
+         read (input,360)  answer
   360    format (a240)
          next = 1
       end if
       call upcase (answer)
       if (answer .eq. 'Y')  updateEachStep = .true.
+c
+c     enable use of the PLUMED plugin for free energy calculations
+c
+c     by default, plumedInputFile is set to -1 and the PLUMED plugin
+c     is disabled;
+c     if plumedInputFile is provided and corresponds to an existing 
+c     file path, then the PLUMED plugin is enabled and will read input
+c     from plumedInputFile
+c
+      plumedInputFile = "-1"
+      call nextarg (string,exist)
+      if (exist)  read (string,*,err=370,end=370)  plumedInputFile
+  370 continue
+      if (.not. exist) then
+         write (iout,380)
+  380    format (/,' Enter PLUMED input file name (-1 to disable)',
+     &              ' [-1] :  ',$)
+         read (input,390)  plumedInputFile
+  390    format (a240)
+         next = 1
+      end if
+      if ( plumedInputFile .ne. "-1" ) then
+         call basefile (plumedInputFile)
+         inquire (file=plumedInputFile,exist=exist)
+         if (.not. exist) call fatal
+      end if
 c
 c     perform the setup functions needed to run dynamics
 c
@@ -300,40 +326,40 @@ c
 c     print out a header line for the dynamics computation
 c
       if (integrate .eq. 'VERLET') then
-         write (iout,370)
-  370    format (/,' Molecular Dynamics Trajectory via',
-     &              ' Velocity Verlet Algorithm')
-      else if (integrate .eq. 'STOCHASTIC') then
-         write (iout,380)
-  380    format (/,' Stochastic Dynamics Trajectory via',
-     &              ' Velocity Verlet Algorithm')
-      else if (integrate .eq. 'BAOAB') then
-         write (iout,390)
-  390    format (/,' Constrained Stochastic Dynamics Trajectory',
-     &              ' via BAOAB Algorithm')
-      else if (integrate .eq. 'BUSSI') then
          write (iout,400)
   400    format (/,' Molecular Dynamics Trajectory via',
-     &              ' Bussi-Parrinello NPT Algorithm')
-      else if (integrate .eq. 'NOSE-HOOVER') then
+     &              ' Velocity Verlet Algorithm')
+      else if (integrate .eq. 'STOCHASTIC') then
          write (iout,410)
-  410    format (/,' Molecular Dynamics Trajectory via',
-     &              ' Nose-Hoover NPT Algorithm')
-      else if (integrate .eq. 'GHMC') then
+  410    format (/,' Stochastic Dynamics Trajectory via',
+     &              ' Velocity Verlet Algorithm')
+      else if (integrate .eq. 'BAOAB') then
          write (iout,420)
-  420    format (/,' Stochastic Dynamics Trajectory via',
-     &              ' Generalized Hybrid Monte Carlo')
-      else if (integrate .eq. 'RIGIDBODY') then
+  420    format (/,' Constrained Stochastic Dynamics Trajectory',
+     &              ' via BAOAB Algorithm')
+      else if (integrate .eq. 'BUSSI') then
          write (iout,430)
   430    format (/,' Molecular Dynamics Trajectory via',
-     &              ' Rigid Body Algorithm')
-      else if (integrate .eq. 'RESPA') then
+     &              ' Bussi-Parrinello NPT Algorithm')
+      else if (integrate .eq. 'NOSE-HOOVER') then
          write (iout,440)
   440    format (/,' Molecular Dynamics Trajectory via',
+     &              ' Nose-Hoover NPT Algorithm')
+      else if (integrate .eq. 'GHMC') then
+         write (iout,450)
+  450    format (/,' Stochastic Dynamics Trajectory via',
+     &              ' Generalized Hybrid Monte Carlo')
+      else if (integrate .eq. 'RIGIDBODY') then
+         write (iout,460)
+  460    format (/,' Molecular Dynamics Trajectory via',
+     &              ' Rigid Body Algorithm')
+      else if (integrate .eq. 'RESPA') then
+         write (iout,470)
+  470    format (/,' Molecular Dynamics Trajectory via',
      &              ' r-RESPA MTS Algorithm')
       else
-         write (iout,450)
-  450    format (/,' Molecular Dynamics Trajectory via',
+         write (iout,480)
+  480    format (/,' Molecular Dynamics Trajectory via',
      &              ' Modified Beeman Algorithm')
       end if
 c
@@ -379,9 +405,9 @@ c     print performance and timing information
 c
       speed = 0.0d0
       if (elapsed .ne. 0.0d0)  speed = 86.4d0 * nstep * dt / elapsed
-      write (iout,460)  speed,elapsed,nstep,updateCalls,
+      write (iout,490)  speed,elapsed,nstep,updateCalls,
      &                  1000.0d0*dt,n,nthread
-  460 format (/,' Performance:  ns/day',9x,f12.4,
+  490 format (/,' Performance:  ns/day',9x,f12.4,
      &        /,15x,'Wall Time',6x,f12.4,
      &        /,15x,'Steps',14x,i8,
      &        /,15x,'Updates',12x,i8,

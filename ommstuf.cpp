@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <fstream>
 
 const int MAX_STRING = 240;
 
@@ -57,6 +58,7 @@ extern "C" {
 #include "OpenMMCWrapper.h"
 #include "AmoebaOpenMMCWrapper.h"
 #include "OpenMM.h"
+#include "PlumedForce.h"
 using namespace OpenMM;
 
 typedef struct OpenMMData_s OpenMMData;
@@ -522,6 +524,7 @@ struct {
    char cudaPrecision[MAX_STRING];
    char ommPlatform[MAX_STRING];
    char cudaDevice[MAX_STRING];
+   char plumedInputFile[MAX_STRING];
 } openmm__;
 
 struct {
@@ -1441,12 +1444,14 @@ void set_opbend_data_ (int* nopbend, int* iopb, double* opbk) {
 }
 
 void set_openmm_data_ (void** ommHandle, char* cudaPrecision,
-                      char* ommPlatform, char* cudaDevice) {
+                      char* ommPlatform, char* cudaDevice,
+                      char* plumedInputFile) {
 
    openmm__.ommHandle = *ommHandle;
    setNullTerminator (cudaPrecision, 6, openmm__.cudaPrecision);
    setNullTerminator (ommPlatform, 9, openmm__.ommPlatform);
    setNullTerminator (cudaDevice, 16, openmm__.cudaDevice);
+   setNullTerminator (plumedInputFile, 240, openmm__.plumedInputFile);
 }
 
 void set_pitors_data_ (int* npitors, int* ipit, double* kpit) {
@@ -3374,6 +3379,19 @@ static void setupAmoebaGeneralizedKirkwoodForce (OpenMM_System* system,
    }
 }
 
+static void setupPlumedForce (OpenMM_System* system, FILE* log) {
+
+// openmm__.plumedInputFile
+   std::ifstream ifs(openmm__.plumedInputFile);
+   std::string plumedInput ( (std::istreambuf_iterator<char>(ifs) ),
+                             (std::istreambuf_iterator<char>()    ) );
+
+   PlumedPlugin::PlumedForce pluObj(plumedInput), *plumedForce;
+   plumedForce = &pluObj;
+
+   OpenMM_System_addForce (system, (OpenMM_Force*) plumedForce);
+}
+
 /*
  *    ############################################################
  *          Setup Geometric Restraint Potential Energy Terms
@@ -4012,6 +4030,10 @@ void openmm_init_ (void** ommHandle, double* dt) {
 
    if (potent__.use_solv) {
       setupAmoebaWcaDispersionForce (omm->system, log);
+   }
+
+   if (openmm__.plumedInputFile != "-1") {
+      setupPlumedForce (omm->system, log);
    }
 
    if (bath__.isobaric && bath__.atmsph > 0.0) {

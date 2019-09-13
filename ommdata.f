@@ -147,7 +147,8 @@ c
      &                      stoff,rcav,rdisp,cdisp)
       call set_opbend_data (nopbend,iopb,opbk)
       call set_openmm_data (ommHandle,cudaPrecision,
-     &                      ommPlatform,cudaDevice)
+     &                      ommPlatform,cudaDevice,
+     &                      plumedInputFile)
       call set_pitors_data (npitors,ipit,kpit)
       call set_pme_data (nfft1,nfft2,nfft3,nefft1,nefft2,nefft3,ndfft1,
      &                   ndfft2,ndfft3,bsorder,bseorder,bsporder,
